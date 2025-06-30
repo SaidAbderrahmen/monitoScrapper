@@ -88,9 +88,11 @@ class MonitoScraper {
 
             await new Promise(resolve => setTimeout(resolve, 2000));
 
-            const providers = await this.page.evaluate(() => {
+            const providers = await this.page.evaluate((fromCur, toCur) => {
                 const extractedData = [];
                 const providerElements = document.querySelectorAll('#cash-tab li[data-v-798eb8c7]');
+                const fromCurrency = fromCur.toUpperCase();
+                const toCurrency = toCur.toUpperCase();
 
                 providerElements.forEach((element, index) => {
                     if (element.querySelector('img[src*="simple-app-mobile"]')) return;
@@ -113,12 +115,12 @@ class MonitoScraper {
                     }
 
                     const transferTimeEl = element.querySelector('.font-semibold.text-16, .font-semibold.text-18');
-                    if (transferTimeEl && !transferTimeEl.textContent.includes('TND') && !transferTimeEl.textContent.includes('EUR')) {
+                    if (transferTimeEl && !transferTimeEl.textContent.includes(toCurrency) && !transferTimeEl.textContent.includes(fromCurrency)) {
                         provider.transferTime = transferTimeEl.textContent.trim();
                     }
 
                     const promoFeeEl = element.querySelector('.text-gray-500 strong');
-                    if (promoFeeEl && promoFeeEl.textContent.includes('EUR')) {
+                    if (promoFeeEl && promoFeeEl.textContent.includes(fromCurrency)) {
                         const feeText = promoFeeEl.textContent.trim();
                         provider.promotionalFee = feeText.toUpperCase() === 'FREE' ? 0 : parseFloat(feeText.replace(/[^\d.-]/g, '')) || 0;
                     } else if (element.textContent.includes('FREE') || element.textContent.includes('Free')) {
@@ -129,13 +131,13 @@ class MonitoScraper {
                     promoRateElements.forEach(el => {
                         const text = el.textContent.trim();
                         const rate = parseFloat(text);
-                        if (rate && rate > 1 && rate < 10) {
+                        if (rate && rate > 0 && !text.includes(fromCurrency) && !text.includes(toCurrency)) {
                             provider.promotionalExchangeRate = rate;
                         }
                     });
 
                     const promoRecipientEl = element.querySelector('.font-semibold');
-                    if (promoRecipientEl && promoRecipientEl.textContent.includes('TND')) {
+                    if (promoRecipientEl && promoRecipientEl.textContent.includes(toCurrency)) {
                         const amountText = promoRecipientEl.textContent.trim();
                         provider.promotionalRecipientGets = parseFloat(amountText.replace(/[^\d.-]/g, '')) || 0;
                     }
@@ -143,13 +145,13 @@ class MonitoScraper {
                     const lineThroughElements = element.querySelectorAll('.line-through');
                     lineThroughElements.forEach(el => {
                         const text = el.textContent.trim();
-                        if (text.includes('EUR')) {
+                        if (text.includes(fromCurrency)) {
                             provider.regularFee = parseFloat(text.replace(/[^\d.-]/g, '')) || 0;
-                        } else if (text.includes('TND')) {
+                        } else if (text.includes(toCurrency)) {
                             provider.regularRecipientGets = parseFloat(text.replace(/[^\d.-]/g, '')) || 0;
                         } else {
                             const rate = parseFloat(text);
-                            if (rate && rate > 1 && rate < 10) {
+                            if (rate && rate > 0 && !isNaN(rate)) {
                                 provider.regularExchangeRate = rate;
                             }
                         }
@@ -186,9 +188,9 @@ class MonitoScraper {
                             const amounts = recipientSection.querySelectorAll('p');
                             amounts.forEach(p => {
                                 const text = p.textContent.trim();
-                                if (text.includes('TND') && !p.classList.contains('line-through')) {
+                                if (text.includes(toCurrency) && !p.classList.contains('line-through')) {
                                     provider.promotionalRecipientGets = parseFloat(text.replace(/[^\d.-]/g, '')) || 0;
-                                } else if (text.includes('TND') && p.classList.contains('line-through')) {
+                                } else if (text.includes(toCurrency) && p.classList.contains('line-through')) {
                                     provider.regularRecipientGets = parseFloat(text.replace(/[^\d.-]/g, '')) || 0;
                                 }
                             });
@@ -201,7 +203,7 @@ class MonitoScraper {
                 });
 
                 return extractedData;
-            });
+            }, fromCurrency, toCurrency);
 
             const cleanedProviders = this.cleanProviderData(providers);
 
@@ -294,9 +296,9 @@ module.exports = { MonitoScraper, scrapeMonito };
 if (require.main === module) {
     scrapeMonito({
         fromCountry: 'de',
-        toCountry: 'tn',
+        toCountry: 'ma',
         fromCurrency: 'eur',
-        toCurrency: 'tnd',
+        toCurrency: 'mad',
         amount: 100,
         options: {
             headless: true,
