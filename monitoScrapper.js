@@ -86,7 +86,7 @@ class MonitoScraper {
                 });
             });
 
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 300));
 
             const providers = await this.page.evaluate((fromCur, toCur) => {
                 const extractedData = [];
@@ -257,6 +257,18 @@ class MonitoScraper {
                 }
             };
 
+            if (!cleaned.regular.fee || cleaned.regular.fee === 0) {
+                cleaned.regular.fee = cleaned.promotional.fee;
+            }
+            
+            if (!cleaned.regular.exchangeRate || cleaned.regular.exchangeRate === 0) {
+                cleaned.regular.exchangeRate = cleaned.promotional.exchangeRate;
+            }
+            
+            if (!cleaned.regular.recipientGets || cleaned.regular.recipientGets === 0) {
+                cleaned.regular.recipientGets = cleaned.promotional.recipientGets;
+            }
+
             Object.keys(cleaned).forEach(key => {
                 if (typeof cleaned[key] === 'string') {
                     cleaned[key] = cleaned[key].replace(/\s+/g, ' ').trim();
@@ -296,9 +308,9 @@ module.exports = { MonitoScraper, scrapeMonito };
 if (require.main === module) {
     scrapeMonito({
         fromCountry: 'de',
-        toCountry: 'ma',
+        toCountry: 'tn',
         fromCurrency: 'eur',
-        toCurrency: 'mad',
+        toCurrency: 'tnd',
         amount: 100,
         options: {
             headless: true,
