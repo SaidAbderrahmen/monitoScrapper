@@ -46,7 +46,7 @@ curl -X POST http://localhost:3000/api/scrape \
 ##  CLI
 
 ```bash
-node cli.js scrape -f de -t tn -fc eur -tc tnd -a 500
+node cli.js scrape --from-country de -to-country tn --from-currency eur --to-currency tnd --amount 500
 
 # Save output to file
 node cli.js scrape -o results.json --pretty
