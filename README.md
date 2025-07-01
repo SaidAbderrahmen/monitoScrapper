@@ -76,6 +76,7 @@ Response Format
   "totalProviders": 12,
   "scrapedAt": "2025-07-01T10:30:00.000Z"
 }
+
 Notes
 Uses headless Chrome via Puppeteer
 
