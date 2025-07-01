@@ -77,7 +77,8 @@ Response Format
   "scrapedAt": "2025-07-01T10:30:00.000Z"
 }
 
-Notes
+Notes :
+
 Uses headless Chrome via Puppeteer
 
 Blocks images/CSS for faster scraping
