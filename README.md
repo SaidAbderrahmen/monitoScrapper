@@ -1,21 +1,35 @@
+# Monito Scraper
 
+A Node.js scraper using Puppeteer to fetch and compare money transfer providers via Monito.
+
+---
+
+## Quick Setup
+
+```bash
 # Install dependencies and start API
 npm install
 npm start
-The API runs on port 3000.
+```
 
-Endpoints
-GET /health
-Check if the service is running.
+The API runs on port `3000`.
 
-POST /api/scrape
-Scrape with JSON body parameters.
+---
 
-GET /api/scrape/de/tn/eur/tnd/100
-Scrape using URL parameters.
+##  Main Endpoints
 
-Example request:
+* `GET /health`
+  Check if the service is running.
 
+* `POST /api/scrape`
+  Scrape with JSON body parameters.
+
+* `GET /api/scrape/de/tn/eur/tnd/100`
+  Scrape using URL parameters.
+
+**Example request:**
+
+```bash
 curl -X POST http://localhost:3000/api/scrape \
   -H "Content-Type: application/json" \
   -d '{
@@ -25,26 +39,42 @@ curl -X POST http://localhost:3000/api/scrape \
     "toCurrency": "tnd",
     "amount": 100
   }'
+```
 
-CLI
+---
 
+##  CLI
+
+```bash
 node cli.js scrape -f de -t tn -fc eur -tc tnd -a 500
 
 # Save output to file
 node cli.js scrape -o results.json --pretty
+```
 
+---
+
+##  Docker Deployment
+
+```bash
 docker-compose up --build
+```
+
 Includes Chrome and handles Puppeteer dependencies.
 
-Parameters
-fromCountry, toCountry: 2‑letter country codes (e.g. us, de, mx)
+---
 
-fromCurrency, toCurrency: 3‑letter currency codes (e.g. usd, eur, mxn)
+##  Parameters
 
-amount: number (e.g. 100, 500, 1000)
+* `fromCountry`, `toCountry`: 2‑letter country codes (e.g. `us`, `de`, `mx`)
+* `fromCurrency`, `toCurrency`: 3‑letter currency codes (e.g. `usd`, `eur`, `mxn`)
+* `amount`: number (e.g. `100`, `500`, `1000`)
 
-Response Format
+---
 
+##  Response Format
+
+```json
 {
   "success": true,
   "transfer": {
@@ -76,11 +106,12 @@ Response Format
   "totalProviders": 12,
   "scrapedAt": "2025-07-01T10:30:00.000Z"
 }
+```
 
-Notes :
+---
 
-Uses headless Chrome via Puppeteer
+##  Notes
 
-Blocks images/CSS for faster scraping
-
-Rate limiting: 100 requests per 15 minutes
+* Uses headless Chrome via Puppeteer
+* Blocks images/CSS for faster scraping
+* Rate limiting: 100 requests per 15 minutes
